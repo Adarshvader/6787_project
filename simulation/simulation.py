@@ -31,13 +31,15 @@ def start_client(dataset: DATASET) -> None:
     tf.keras.layers.Dense(128, activation='relu'),
     tf.keras.layers.Dense(10)])
 
+    model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
+
     #model.compile(optimizer=tf.keras.optimizers.Adam(0.001),
     #loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     #metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],)
 
 
-    model = tf.keras.applications.MobileNetV2((32, 32, 3), classes=10, weights=None)
-    model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
+    #model = tf.keras.applications.MobileNetV2((32, 32, 3), classes=10, weights=None)
+    #model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
 
     # Unpack the CIFAR-10 dataset partition
     (x_train, y_train), (x_test, y_test) = dataset
@@ -64,7 +66,7 @@ def start_client(dataset: DATASET) -> None:
             return loss, len(x_test), {"accuracy": accuracy}
 
     # Start Flower client
-    fl.client.start_numpy_client("0.0.0.0:8080", client=CifarClient())
+    fl.client.start_numpy_client("localhost:8080", client=CifarClient())
 
 
 def run_simulation(num_rounds: int, num_clients: int, fraction_fit: float):
@@ -84,7 +86,8 @@ def run_simulation(num_rounds: int, num_clients: int, fraction_fit: float):
     time.sleep(2)
 
     # Load the dataset partitions
-    partitions = dataset.load(num_partitions=num_clients)
+    #partitions = dataset.load(num_partitions=num_clients)
+    partitions = dataset.load_partitions()
 
     # Start all the clients
     for partition in partitions:
